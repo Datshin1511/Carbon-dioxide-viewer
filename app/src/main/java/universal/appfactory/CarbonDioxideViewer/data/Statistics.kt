@@ -1,4 +1,4 @@
-package universal.appfactory.finalapplication.data
+package universal.appfactory.CarbonDioxideViewer.data
 
 import com.google.gson.annotations.SerializedName
 

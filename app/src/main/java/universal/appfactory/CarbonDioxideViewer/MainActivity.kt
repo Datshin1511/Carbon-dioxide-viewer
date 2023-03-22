@@ -1,4 +1,4 @@
-package universal.appfactory.finalapplication
+package universal.appfactory.CarbonDioxideViewer
 
 import android.content.Context
 import android.content.Intent
@@ -9,7 +9,7 @@ import android.os.Bundle
 import android.os.CountDownTimer
 import android.util.Log
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import universal.appfactory.finalapplication.home.HomepageActivity
+import universal.appfactory.CarbonDioxideViewer.home.HomepageActivity
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

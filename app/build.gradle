@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace 'universal.appfactory.finalapplication'
+    namespace 'universal.appfactory.CarbonDioxideViewer'
     compileSdk 33
 
     defaultConfig {
-        applicationId "universal.appfactory.finalapplication"
+        applicationId "universal.appfactory.CarbonDioxideViewer"
         minSdk 26
         targetSdk 33
         versionCode 1

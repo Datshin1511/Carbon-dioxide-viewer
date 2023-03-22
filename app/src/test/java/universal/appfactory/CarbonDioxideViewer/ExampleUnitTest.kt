@@ -1,4 +1,4 @@
-package universal.appfactory.finalapplication
+package universal.appfactory.CarbonDioxideViewer
 
 import org.junit.Test
 

@@ -8,8 +8,10 @@
         android:id="@+id/backpress"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_margin="10dp"
         android:layout_marginTop="10dp"
         android:layout_marginBottom="10dp"
-        android:background="@drawable/back_icon" />
+        android:background="@drawable/back_icon"
+        android:contentDescription="Back icon" />
 
 </RelativeLayout>

@@ -1,6 +1,6 @@
 @file:Suppress("MemberVisibilityCanBePrivate")
 
-package universal.appfactory.finalapplication.API
+package universal.appfactory.CarbonDioxideViewer.API
 
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit

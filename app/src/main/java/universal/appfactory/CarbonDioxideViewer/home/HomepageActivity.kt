@@ -1,4 +1,4 @@
-package universal.appfactory.finalapplication.home
+package universal.appfactory.CarbonDioxideViewer.home
 
 import android.annotation.SuppressLint
 import android.content.Intent
@@ -22,14 +22,14 @@ import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import universal.appfactory.finalapplication.API.ApiInterface
-import universal.appfactory.finalapplication.API.ServiceBuilder
-import universal.appfactory.finalapplication.R
-import universal.appfactory.finalapplication.Settings.CreditsActivity
-import universal.appfactory.finalapplication.Settings.HelpActivity
-import universal.appfactory.finalapplication.Settings.SettingsActivity
-import universal.appfactory.finalapplication.Settings.TasksActivity
-import universal.appfactory.finalapplication.data.*
+import universal.appfactory.CarbonDioxideViewer.API.ApiInterface
+import universal.appfactory.CarbonDioxideViewer.API.ServiceBuilder
+import universal.appfactory.CarbonDioxideViewer.R
+import universal.appfactory.CarbonDioxideViewer.Settings.CreditsActivity
+import universal.appfactory.CarbonDioxideViewer.Settings.HelpActivity
+import universal.appfactory.CarbonDioxideViewer.Settings.SettingsActivity
+import universal.appfactory.CarbonDioxideViewer.Settings.TasksActivity
+import universal.appfactory.CarbonDioxideViewer.data.*
 
 
 @Suppress("UNUSED_PARAMETER")
