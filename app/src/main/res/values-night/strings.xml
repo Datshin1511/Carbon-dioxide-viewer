@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="button_text">Connect to LG</string>
+    <string name="credit">Credit goes here</string>
+    <string name="help">Help</string>
+    <string name="master_password">Master password</string>
+    <string name="total_machines">Total machine count</string>
+    <string name="status">Status:</string>
+</resources>

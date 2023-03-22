@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/help"
+        android:titleCondensed="help"
+        android:title="@string/help"
+        android:onClick="menu"
+        app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/main_menu_settings"
+        android:titleCondensed="connect"
+        android:title="@string/menu_settings"
+        android:onClick="menu"
+        app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/lg_tasks"
+        android:titleCondensed="tasks"
+        android:title="@string/lg_tasks"
+        android:onClick="menu"
+        app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/about_me"
+        android:titleCondensed="credits"
+        android:title="@string/about"
+        android:onClick="menu"
+        app:showAsAction="never"/>
+
+</menu>
