@@ -1,5 +1,6 @@
 package universal.appfactory.CarbonDioxideViewer.Settings
 
+import android.annotation.SuppressLint
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.ImageView
@@ -7,6 +8,7 @@ import androidx.appcompat.app.ActionBar
 import universal.appfactory.CarbonDioxideViewer.R
 
 class CreditsActivity : AppCompatActivity() {
+    @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_credits)

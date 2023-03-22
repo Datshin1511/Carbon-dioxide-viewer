@@ -10,13 +10,9 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.ActionBar
-import com.jcraft.jsch.ChannelExec
-import com.jcraft.jsch.JSch
-import net.schmizz.sshj.SSHClient
 import universal.appfactory.CarbonDioxideViewer.R
-import java.io.BufferedReader
-import java.io.InputStreamReader
 import java.util.*
+import com.jcraft.jsch.*
 
 class SettingsActivity : AppCompatActivity() {
 
@@ -47,7 +43,7 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     fun populateFields(){
-        sharedPreferences = getSharedPreferences("ConnectionData", MODE_PRIVATE)
+        sharedPreferences = getSharedPreferences("LGConnectionData", MODE_PRIVATE)
 
         findViewById<EditText>(R.id.master_username).setText(sharedPreferences.getString("username", "lg").toString())
         findViewById<EditText>(R.id.master_password).setText(sharedPreferences.getString("password", "lg").toString())
@@ -61,7 +57,6 @@ class SettingsActivity : AppCompatActivity() {
 
     fun appendData(){
 
-        sharedPreferences = getSharedPreferences("ConnectionData", MODE_PRIVATE)
         val editPreferences: SharedPreferences.Editor = sharedPreferences.edit()
 
         username = findViewById<EditText>(R.id.master_username).text.toString()
@@ -81,7 +76,31 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     fun setupConnection(){
+        try{
+            val jsch = JSch()
+            val session = jsch.getSession(username, ip, port.toInt())
+            session.setPassword(password)
+            session.setConfig("StrictHostKeyChecking", "no")
+            session.connect()
 
+            val channel = session.openChannel("exec")
+            (channel as ChannelExec).setCommand("lg-relaunch")
+            channel.connect()
+
+            val input = channel.inputStream.bufferedReader().readText()
+            val error = channel.errStream.bufferedReader().readText()
+
+            Log.i("Server Output", input)
+            Log.i("Error", error)
+
+            channel.disconnect()
+            session.disconnect()
+            Toast.makeText(this, "Connection successful", Toast.LENGTH_SHORT).show()
+        }
+        catch (e: Exception){
+            e.printStackTrace()
+            Toast.makeText(this, "Error", Toast.LENGTH_SHORT).show()
+        }
     }
 
 }
