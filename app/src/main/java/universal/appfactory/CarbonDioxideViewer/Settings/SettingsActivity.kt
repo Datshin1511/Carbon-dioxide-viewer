@@ -2,17 +2,18 @@ package universal.appfactory.CarbonDioxideViewer.Settings
 
 import android.annotation.SuppressLint
 import android.content.SharedPreferences
-import androidx.appcompat.app.AppCompatActivity
+import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
+import android.os.StrictMode
 import android.util.Log
-import android.widget.Button
-import android.widget.EditText
-import android.widget.ImageView
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.ActionBar
+import androidx.appcompat.app.AppCompatActivity
+import com.jcraft.jsch.*
 import universal.appfactory.CarbonDioxideViewer.R
 import java.util.*
-import com.jcraft.jsch.*
+
 
 class SettingsActivity : AppCompatActivity() {
 
@@ -21,6 +22,9 @@ class SettingsActivity : AppCompatActivity() {
     lateinit var ip: String
     lateinit var port: String
     lateinit var machineCount: String
+
+    var connectionFlag: Boolean = false
+
     lateinit var sharedPreferences: SharedPreferences
 
     @SuppressLint("MissingInflatedId")
@@ -34,10 +38,67 @@ class SettingsActivity : AppCompatActivity() {
         populateFields()
 
         findViewById<ImageView>(R.id.backpress).setOnClickListener { super.onBackPressed() }
+        findViewById<TextView>(R.id.connection_status).text = "DISCONNECTED"
+        findViewById<TextView>(R.id.connection_status).setTextColor(Color.RED)
 
-        findViewById<Button>(R.id.connectButton).setOnClickListener {
-            appendData()
-            setupConnection()
+        val button = findViewById<Button>(R.id.connectButton)
+
+
+        val SDK_INT = Build.VERSION.SDK_INT
+        if (SDK_INT > 8) {
+            val policy = StrictMode.ThreadPolicy.Builder()
+                .permitAll().build()
+            StrictMode.setThreadPolicy(policy)
+            //your codes here
+            button.setOnClickListener {
+                if(!connectionFlag){
+                    appendData()
+                    setupConnection()
+                }
+                else{
+
+                }
+
+            }
+        }
+
+    }
+
+    fun setupConnection(){
+
+        try{
+            val jsch = JSch()
+            val session = jsch.getSession(username, ip, port.toInt())
+            session.setPassword(password)
+            session.timeout = 10000
+            session.setConfig("StrictHostKeyChecking", "no")
+            session.connect()
+
+            val channel = session.openChannel("exec")
+            (channel as ChannelExec).setCommand("lg-relaunch")
+            channel.connect()
+
+            if(channel.isConnected) {
+                Toast.makeText(this, "Connection Success", Toast.LENGTH_SHORT).show()
+                findViewById<TextView>(R.id.connection_status).text = "CONNECTED"
+                findViewById<TextView>(R.id.connection_status).setTextColor(Color.GREEN)
+                findViewById<Button>(R.id.connectButton).text = "DISCONNECT"
+            }
+            else{
+                findViewById<Button>(R.id.connectButton).text = "CONNECT TO LG"
+                Toast.makeText(this, "Failure", Toast.LENGTH_SHORT).show()
+            }
+
+
+            val input = channel.inputStream.bufferedReader().readText()
+            val error = channel.errStream.bufferedReader().readText()
+
+            Log.i("Server Output", input)
+            Log.i("Error", error)
+        }
+        catch (e: Exception){
+            e.printStackTrace()
+            Toast.makeText(this, "Error", Toast.LENGTH_SHORT).show()
         }
 
     }
@@ -73,34 +134,6 @@ class SettingsActivity : AppCompatActivity() {
 
         editPreferences.apply()
         Log.i("Shared Preferences", "Data is appended")
-    }
-
-    fun setupConnection(){
-        try{
-            val jsch = JSch()
-            val session = jsch.getSession(username, ip, port.toInt())
-            session.setPassword(password)
-            session.setConfig("StrictHostKeyChecking", "no")
-            session.connect()
-
-            val channel = session.openChannel("exec")
-            (channel as ChannelExec).setCommand("lg-relaunch")
-            channel.connect()
-
-            val input = channel.inputStream.bufferedReader().readText()
-            val error = channel.errStream.bufferedReader().readText()
-
-            Log.i("Server Output", input)
-            Log.i("Error", error)
-
-            channel.disconnect()
-            session.disconnect()
-            Toast.makeText(this, "Connection successful", Toast.LENGTH_SHORT).show()
-        }
-        catch (e: Exception){
-            e.printStackTrace()
-            Toast.makeText(this, "Error", Toast.LENGTH_SHORT).show()
-        }
     }
 
 }
