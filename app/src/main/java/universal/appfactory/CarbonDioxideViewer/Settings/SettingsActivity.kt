@@ -3,15 +3,31 @@ package universal.appfactory.CarbonDioxideViewer.Settings
 import android.annotation.SuppressLint
 import android.content.SharedPreferences
 import android.graphics.Color
+import android.os.AsyncTask
 import android.os.Build
 import android.os.Bundle
 import android.os.StrictMode
 import android.util.Log
+import android.view.View
 import android.widget.*
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
+import com.google.android.material.snackbar.Snackbar
 import com.jcraft.jsch.*
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import universal.appfactory.CarbonDioxideViewer.API.ApiInterface
+import universal.appfactory.CarbonDioxideViewer.API.ServiceBuilder
 import universal.appfactory.CarbonDioxideViewer.R
+import universal.appfactory.CarbonDioxideViewer.data.DataResponseModel
+import universal.appfactory.CarbonDioxideViewer.data.Statistics
+import java.io.BufferedReader
+import java.io.InputStreamReader
 import java.util.*
 
 
@@ -52,47 +68,71 @@ class SettingsActivity : AppCompatActivity() {
             //your codes here
             button.setOnClickListener {
                 appendData()
-                setupConnection()
+                LGConnectionAsyncTask().execute()
             }
         }
 
     }
 
-    fun setupConnection(){
+    @SuppressLint("StaticFieldLeak")
+    inner class LGConnectionAsyncTask: AsyncTask<String, String, String>() {
 
-        try{
-            val jsch = JSch()
-            val session = jsch.getSession(username, ip, port.toInt())
-            session.setPassword(password)
-            session.timeout = 10000
-            session.setConfig("StrictHostKeyChecking", "no")
-            session.connect()
+        @Deprecated("Deprecated in Java")
+        override fun onPreExecute() {
+            super.onPreExecute()
+            findViewById<ProgressBar>(R.id.progressbar).visibility = View.VISIBLE
+            findViewById<Button>(R.id.connectButton).text = "CONNECTING..."
+        }
 
-            val channel = session.openChannel("exec")
-            (channel as ChannelExec).setCommand("lg-relaunch")
-            channel.connect()
+        @Deprecated("Deprecated in Java")
+        override fun doInBackground(vararg p0: String?): String {
+            try{
+                val jsch = JSch()
+                val session = jsch.getSession(username, ip, port.toInt())
+                session.setPassword(password)
+                session.timeout = 10000
+                session.setConfig("StrictHostKeyChecking", "no")
+                session.connect()
 
-            if(channel.isConnected) {
-                Toast.makeText(this, "Connection Success", Toast.LENGTH_SHORT).show()
+                val channel = session.openChannel("exec")
+                channel.connect()
+
+                val output = BufferedReader(InputStreamReader(channel.inputStream)).readLine().toString()
+                Log.i("Output", output)
+
+                return if(channel.isConnected) {
+                    "Success"
+                } else{
+                    "Failure"
+                }
+
+            }
+            catch (e: Exception){
+                e.printStackTrace()
+                return "Some error"
+            }
+
+        }
+
+        @Deprecated("Deprecated in Java")
+        override fun onPostExecute(result: String?) {
+            Log.i("CO2 data", "Data is fetched")
+
+            if(result == "Success"){
                 findViewById<TextView>(R.id.connection_status).text = "CONNECTED"
                 findViewById<TextView>(R.id.connection_status).setTextColor(Color.GREEN)
                 findViewById<Button>(R.id.connectButton).text = "DISCONNECT"
             }
             else{
                 findViewById<Button>(R.id.connectButton).text = "CONNECT TO LG"
-                Toast.makeText(this, "Failure", Toast.LENGTH_SHORT).show()
+                findViewById<TextView>(R.id.connection_status).text = "DISCONNECTED"
+                findViewById<TextView>(R.id.connection_status).setTextColor(Color.RED)
+                runOnUiThread {
+                    Toast.makeText(this@SettingsActivity, "Error", Toast.LENGTH_SHORT).show()
+                }
             }
+            findViewById<ProgressBar>(R.id.progressbar).visibility = View.GONE
 
-
-            val input = channel.inputStream.bufferedReader().readText()
-            val error = channel.errStream.bufferedReader().readText()
-
-            Log.i("Server Output", input)
-            Log.i("Error", error)
-        }
-        catch (e: Exception){
-            e.printStackTrace()
-            Toast.makeText(this, "Error", Toast.LENGTH_SHORT).show()
         }
 
     }

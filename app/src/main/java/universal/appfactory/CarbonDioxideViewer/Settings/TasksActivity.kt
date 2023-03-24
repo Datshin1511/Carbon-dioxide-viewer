@@ -136,11 +136,63 @@ class TasksActivity : AppCompatActivity() {
                     Toast.makeText(this, "Error", Toast.LENGTH_SHORT).show()
                 }
             }
+
             "4" -> ""
             "5" -> ""
-            "6" -> ""
+
+            "6" -> {
+                try{
+                    val session = setSession()
+                    session.connect()
+
+                    val blank = """<?xml version="1.0" encoding="UTF-8"?>
+                                    <kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2" xmlns:kml="http://www.opengis.net/kml/2.2" xmlns:atom="http://www.w3.org/2005/Atom">
+                                    <Document>
+                                    </Document>
+                                    </kml>"""
+                    val channel = session.openChannel("exec")
+
+                    val command = """echo '$blank' > /var/www/html/kml/slave_$machineCount.kml"""
+                    (channel as ChannelExec).setCommand(command)
+                    channel.connect()
+
+                    // Disconnection from the rigs
+                    channel.disconnect()
+                    session.connect()
+
+                }
+                catch(e: Exception){
+                    e.printStackTrace()
+                }
+            }
+
             "7" -> ""
-            "8" -> ""
+
+            "8" -> {
+                try{
+                    val session = setSession()
+                    session.connect()
+
+                    val channel = session.openChannel("exec")
+                    val search = """<href>##LG_PHPIFACE##kml\\/slave_{{slave}}.kml<\\/href><refreshMode>onInterval<\\/refreshMode><refreshInterval>2<\\/refreshInterval>"""
+                    val replace = """<href>##LG_PHPIFACE##kml\\/slave_{{slave}}.kml<\\/href>"""
+                    val clear = """echo $password | sudo -S sed -i "s/$search/$replace/" ~/earth/kml/slave/myplaces.kml"""
+
+                    for(i in 1..machineCount.toInt()){
+                        val cmd = clear.replace("{{slave}}", i.toString())
+                        val query = """sshpass -p $password ssh -t lg$i \'$cmd\'"""
+                        (channel as ChannelExec).setCommand(query)
+                        channel.connect()
+                    }
+
+                    // Disconnection from rigs
+                    channel.disconnect()
+                    session.disconnect()
+                }
+                catch(e: Exception){
+                    e.printStackTrace()
+                }
+            }
 
             else -> Log.i("Task Activity", "No command was executed") // No suitable command
         }
@@ -160,7 +212,6 @@ class TasksActivity : AppCompatActivity() {
         ) + 2).toInt().toString()
 
     }
-
     fun setSession(): Session {
         val jsch = JSch()
         val session = jsch.getSession(username, ip, port.toInt())

@@ -1,7 +1,9 @@
 package universal.appfactory.CarbonDioxideViewer.home
 
 import android.annotation.SuppressLint
+import android.app.ProgressDialog
 import android.content.Intent
+import android.os.AsyncTask
 import android.os.Bundle
 import android.util.Log
 import android.util.TypedValue
@@ -10,11 +12,10 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.setPadding
+import androidx.loader.content.AsyncTaskLoader
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -42,34 +43,56 @@ class HomepageActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_homepage)
 
+        findViewById<Button>(R.id.carbonDataButton).setOnClickListener {
+            CO2AsyncTask().execute()
+        }
+
     }
 
-    fun getCarbonData1(view: View){
+    @SuppressLint("StaticFieldLeak")
+    inner class CO2AsyncTask: AsyncTask<String, String, String>() {
 
-        //Accessing API Interface for obtaining CO2 data
-        val response = ServiceBuilder.buildService1(ApiInterface::class.java)
-
-        @OptIn(DelicateCoroutinesApi::class)
-        GlobalScope.launch(Dispatchers.IO) {
-            response.getData()?.enqueue(
-                object : Callback<DataResponseModel> {
-                    override fun onResponse(
-                        call: Call<DataResponseModel>,
-                        response: Response<DataResponseModel>
-                    ) {
-                        val data = response.body()?.co2 as ArrayList<Statistics>
-                        setDataLayout(data)
-
-                    }
-
-                    override fun onFailure(call: Call<DataResponseModel>, t: Throwable) {
-                        Toast.makeText(this@HomepageActivity, "Error", Toast.LENGTH_SHORT).show()
-                        Log.e("Error message", t.toString())
-                    }
-
-                }
-            )
+        @Deprecated("Deprecated in Java")
+        override fun onPreExecute() {
+            super.onPreExecute()
+            findViewById<ProgressBar>(R.id.progressbar).visibility = View.VISIBLE
         }
+
+        @Deprecated("Deprecated in Java")
+        override fun doInBackground(vararg p0: String?): String {
+            //Accessing API Interface for obtaining CO2 data
+            val response = ServiceBuilder.buildService1(ApiInterface::class.java)
+
+            @OptIn(DelicateCoroutinesApi::class)
+            GlobalScope.launch(Dispatchers.IO) {
+
+                response.getData()?.enqueue(
+                    object : Callback<DataResponseModel> {
+                        override fun onResponse(
+                            call: Call<DataResponseModel>,
+                            response: Response<DataResponseModel>
+                        ) {
+                            val data = response.body()?.co2 as ArrayList<Statistics>
+                            setDataLayout(data)
+                        }
+
+                        override fun onFailure(call: Call<DataResponseModel>, t: Throwable) {
+                            Toast.makeText(this@HomepageActivity, "Error", Toast.LENGTH_SHORT).show()
+                            Log.e("Error message", t.toString())
+                        }
+
+                    }
+                )
+            }
+            return "API Response text"
+        }
+
+        @Deprecated("Deprecated in Java")
+        override fun onPostExecute(result: String?) {
+            Log.i("CO2 data", "Data is fetched")
+            findViewById<ProgressBar>(R.id.progressbar).visibility = View.GONE
+        }
+
     }
 
     @SuppressLint("SetTextI18n", "CutPasteId")
