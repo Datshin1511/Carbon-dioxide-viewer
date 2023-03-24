@@ -1,6 +1,7 @@
 package universal.appfactory.CarbonDioxideViewer.Settings
 
 import android.annotation.SuppressLint
+import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
 import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
@@ -14,6 +15,7 @@ import androidx.appcompat.app.ActionBar
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.jcraft.jsch.ChannelExec
 import com.jcraft.jsch.JSch
+import com.jcraft.jsch.Session
 import universal.appfactory.CarbonDioxideViewer.R
 import java.io.BufferedReader
 import java.io.InputStreamReader
@@ -43,10 +45,9 @@ class TasksActivity : AppCompatActivity() {
     }
 
     fun task(view: View) {
-        val tag = view.tag.toString()
 
         // Actual code
-        when(tag){
+        when(view.tag.toString()){
             "1" -> {
                 try{
                     val jsch = JSch()
@@ -55,76 +56,86 @@ class TasksActivity : AppCompatActivity() {
                     session.setConfig("StrictHostKeyChecking", "no")
                     session.connect()
 
-                    if(session.isConnected){
-                        val channel = session.openChannel("exec")
+                    val channel = session.openChannel("exec")
 
-                        for(i in 1..machineCount.toInt()){
-                            val relaunchCommand = """RELAUNCH_CMD="\\
-if [ -f /etc/init/lxdm.conf ]; then
-  export SERVICE=lxdm
-elif [ -f /etc/init/lightdm.conf ]; then
-  export SERVICE=lightdm
-else
-  exit 1
-fi
-if  [[ \\\$(service \\\${'$'}{SERVICE} status) =~ 'stop' ]]; then
-  echo $password | sudo -S service \\\${'$'}{SERVICE} start
-else
-  echo $password | sudo -S service \\\${'$'}{SERVICE} restart
-fi
-" && sshpass -p $password ssh -x -t lg@lg$i "\${'$'}RELAUNCH_CMD\""""
+                    for(i in 1..machineCount.toInt()){
+                        val relaunchCommand = """RELAUNCH_CMD='if [ -f /etc/init/lxdm.conf ]; then export SERVICE=lxdm; elif [ -f /etc/init/lightdm.conf ]; then export SERVICE=lightdm; else exit 1; fi; if [[ $(service ${'$'}{SERVICE} status) =~ "stop" ]]; then echo $password | sudo -S service ${'$'}{SERVICE} start; else echo $password | sudo -S service ${'$'}{SERVICE} restart; fi' && sshpass -p $password ssh -x -t lg@lg$i "${'$'}RELAUNCH_CMD""""
 
-                            (channel as ChannelExec).setCommand(""""/home/${username}/bin/lg-relaunch" > /home/${username}/log.txt""")
-                            channel.setCommand(relaunchCommand)
-                            channel.connect()
-                        }
-
-                        val input = channel.inputStream
-                        val output = BufferedReader(InputStreamReader(input)).readLine()
-
-                        Log.i("Server Output", output)
-                        Toast.makeText(this, "Output: $output", Toast.LENGTH_SHORT).show()
-
-                        // Disconnection from the rigs
-                        channel.disconnect()
-                        session.disconnect()
+                        (channel as ChannelExec).setCommand(relaunchCommand)
+                        channel.connect()
+                        Toast.makeText(this, "Done", Toast.LENGTH_SHORT).show()
                     }
-                    else{
-                        MaterialAlertDialogBuilder(this).setTitle("ERROR")
-                            .setMessage("Not connected to LG rigs. Connect and try again.")
-                            .setPositiveButton("OK"){ _,_ -> }
+
+                    val input = channel.inputStream
+                    val output = BufferedReader(InputStreamReader(input)).readLine()
+
+                    Log.i("Server Output", output)
+                    Toast.makeText(this, "Output: $output", Toast.LENGTH_SHORT).show()
+
+                    // Disconnection from the rigs
+                    channel.disconnect()
+                    session.disconnect()
+                }
+                    catch (e: java.lang.Exception){
+                        e.printStackTrace()
                     }
-                }
-                catch (e: java.lang.Exception){
-                    e.printStackTrace()
-                }
             }
 
             "2" -> {
                 try{
-                    val jsch = JSch()
-                    val session = jsch.getSession(username, ip, port.toInt())
-                    session.setPassword(password)
-                    session.timeout = 10000
-                    session.setConfig("StrictHostKeyChecking", "no")
+                    val session = setSession()
                     session.connect()
 
                     val channel = session.openChannel("exec")
-                    (channel as ChannelExec).setCommand("echo HEY, I'M HERE !")
-                    channel.connect()
 
-                    val input = channel.inputStream.bufferedReader().readText()
-                    val error = channel.errStream.bufferedReader().readText()
+                    for(i in 1..machineCount.toInt()){
+                        val rebootCommand = """sshpass -p $password ssh -t lg$i "echo $password | sudo -S reboot""""
 
-                    Log.i("Server Output", input)
-                    Log.i("Error", error)
+                        (channel as ChannelExec).setCommand(rebootCommand)
+                        channel.connect()
+                        Toast.makeText(this, "Done", Toast.LENGTH_SHORT).show()
+                    }
+
+                    val output = BufferedReader(InputStreamReader(channel.inputStream)).readLine()
+                    Log.i("Output", output)
+
+                    // Disconnection from the rigs
+                    channel.disconnect()
+                    session.disconnect()
                 }
                 catch (e: Exception){
                     e.printStackTrace()
                     Toast.makeText(this, "Error", Toast.LENGTH_SHORT).show()
                 }
             }
-            "3" -> "lg-shutdown"
+
+            "3" -> {
+                try{
+                    val session = setSession()
+                    session.connect()
+
+                    val channel = session.openChannel("exec")
+
+                    for(i in 1..machineCount.toInt()){
+                        val shutdownCommand = """sshpass -p $password ssh -t lg$i "echo $password | sudo -S poweroff""""
+
+                        (channel as ChannelExec).setCommand(shutdownCommand)
+                        channel.connect()
+                        Toast.makeText(this, "Done", Toast.LENGTH_SHORT).show()
+                    }
+
+                    val output = BufferedReader(InputStreamReader(channel.inputStream)).readLine()
+                    Log.i("Output", output)
+
+                    // Disconnection from the rigs
+                    channel.disconnect()
+                    session.disconnect()
+                }
+                catch (e: Exception){
+                    e.printStackTrace()
+                    Toast.makeText(this, "Error", Toast.LENGTH_SHORT).show()
+                }
+            }
             "4" -> ""
             "5" -> ""
             "6" -> ""
@@ -149,5 +160,32 @@ fi
         ) + 2).toInt().toString()
 
     }
+
+    fun setSession(): Session {
+        val jsch = JSch()
+        val session = jsch.getSession(username, ip, port.toInt())
+        session.setPassword(password)
+        session.timeout = 10000
+        session.setConfig("StrictHostKeyChecking", "no")
+
+        return session
+    }
+
+    // Old Relaunch command
+//    val relaunchCommand = """RELAUNCH_CMD="\\
+//if [ -f /etc/init/lxdm.conf ]; then
+//  export SERVICE=lxdm
+//elif [ -f /etc/init/lightdm.conf ]; then
+//  export SERVICE=lightdm
+//else
+//  exit 1
+//fi
+//if  [[ \\\$(service \\\${'$'}{SERVICE} status) =~ 'stop' ]]; then
+//  echo $password | sudo -S service \\\${'$'}{SERVICE} start
+//else
+//  echo $password | sudo -S service \\\${'$'}{SERVICE} restart
+//fi
+//" && sshpass -p $password ssh -x -t lg@lg$i "\${'$'}RELAUNCH_CMD\""""
+
 
 }

@@ -51,14 +51,8 @@ class SettingsActivity : AppCompatActivity() {
             StrictMode.setThreadPolicy(policy)
             //your codes here
             button.setOnClickListener {
-                if(!connectionFlag){
-                    appendData()
-                    setupConnection()
-                }
-                else{
-
-                }
-
+                appendData()
+                setupConnection()
             }
         }
 
