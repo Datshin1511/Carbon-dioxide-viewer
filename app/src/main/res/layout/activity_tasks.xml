@@ -6,17 +6,31 @@
     android:layout_height="match_parent"
     tools:context=".Settings.TasksActivity">
 
+    <ProgressBar
+        android:id="@+id/progressbar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="5dp"
+        android:backgroundTint="@color/white"
+        android:indeterminate="true"
+        android:indeterminateTint="#1a09d6"
+        android:max="100"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.473"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <ScrollView
         android:id="@+id/scrollView2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:minHeight="100dp"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.016">
+        app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -30,7 +44,7 @@
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.009">
+            app:layout_constraintVertical_bias="0.000">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -71,8 +85,8 @@
                         android:maxWidth="120dp"
                         android:onClick="task"
                         android:tag="2"
-                        android:textColor="@color/white"
                         android:text="Reboot\nLG"
+                        android:textColor="@color/white"
                         android:textSize="12sp" />
 
                     <Button
@@ -83,8 +97,8 @@
                         android:maxWidth="120dp"
                         android:onClick="task"
                         android:tag="3"
-                        android:textColor="@color/white"
                         android:text="Shutdown\nLG"
+                        android:textColor="@color/white"
                         android:textSize="12sp" />
 
                 </LinearLayout>
@@ -94,8 +108,8 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
                 android:gravity="center"
+                android:orientation="vertical"
                 android:padding="10dp">
 
                 <TextView
@@ -118,8 +132,8 @@
                         android:maxWidth="120dp"
                         android:onClick="task"
                         android:tag="4"
-                        android:textColor="@color/white"
                         android:text="Save\nKML"
+                        android:textColor="@color/white"
                         android:textSize="12sp" />
 
                     <Button
@@ -130,8 +144,8 @@
                         android:maxWidth="120dp"
                         android:onClick="task"
                         android:tag="5"
-                        android:textColor="@color/white"
                         android:text="Clean\nKML"
+                        android:textColor="@color/white"
                         android:textSize="12sp" />
 
                     <Button
@@ -142,8 +156,8 @@
                         android:maxWidth="120dp"
                         android:onClick="task"
                         android:tag="6"
-                        android:textColor="@color/white"
                         android:text="Clean\nLogo"
+                        android:textColor="@color/white"
                         android:textSize="12sp" />
 
                 </LinearLayout>
@@ -153,8 +167,8 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
                 android:gravity="center"
+                android:orientation="vertical"
                 android:padding="10dp">
 
                 <TextView
@@ -177,8 +191,8 @@
                         android:maxWidth="120dp"
                         android:onClick="task"
                         android:tag="7"
-                        android:textColor="@color/white"
                         android:text="Set Refresh"
+                        android:textColor="@color/white"
                         android:textSize="12sp" />
 
                     <Button
@@ -189,8 +203,8 @@
                         android:maxWidth="120dp"
                         android:onClick="task"
                         android:tag="8"
-                        android:textColor="@color/white"
                         android:text="Reset Refresh"
+                        android:textColor="@color/white"
                         android:textSize="12sp" />
 
                 </LinearLayout>

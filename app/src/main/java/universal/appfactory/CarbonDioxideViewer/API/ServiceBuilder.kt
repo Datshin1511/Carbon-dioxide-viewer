@@ -7,29 +7,31 @@ import java.util.concurrent.TimeUnit
 
 object ServiceBuilder {
 
+    const val BASE_URL_1 = "https://global-warming.org"
+    const val BASE_URL_2 = "https://beta3.api.climatiq.io/"
+    const val API_KEY = "Bearer 5355YRMF5C4JSXMHQ60KPAS6RT2P"
+
     private val client = OkHttpClient.Builder().callTimeout(2, TimeUnit.MINUTES)
         .connectTimeout(60, TimeUnit.SECONDS)
         .readTimeout(60, TimeUnit.SECONDS)
         .writeTimeout(60, TimeUnit.SECONDS).build()
 
-    private val retrofit1 = Retrofit.Builder()
-        .baseUrl("https://global-warming.org") // change this IP for testing by your actual machine IP
+    private val retrofitURL1 = Retrofit.Builder()
+        .baseUrl(BASE_URL_1)
         .addConverterFactory(GsonConverterFactory.create())
         .client(client)
         .build()
 
-    private val retrofit2 = Retrofit.Builder()
-        .baseUrl("https://beta3.api.climatiq.io") // change this IP for testing by your actual machine IP
+    private val retrofitURL2 = Retrofit.Builder()
+        .baseUrl(BASE_URL_2)
         .addConverterFactory(GsonConverterFactory.create())
         .client(client)
         .build()
 
-    fun<T> buildService1(service: Class<T>): T{
-        return retrofit1.create(service)
+    fun<T> buildServiceURL1(service: Class<T>): T{
+        return retrofitURL1.create(service)
     }
-
-    fun<T> buildService2(service: Class<T>): T{
-        return retrofit2.create(service)
+    fun<T> buildServiceURL2(service: Class<T>): T{
+        return retrofitURL2.create(service)
     }
-
 }

@@ -12,4 +12,6 @@
     <string name="master_password">Master password</string>
     <string name="total_machines">Total machine count</string>
     <string name="status">Status:</string>
+    <string name="homepage_action_bar_title">Carbon Dioxide Viewer</string>
+    <string name="title_activity_maps">MapsActivity</string>
 </resources>

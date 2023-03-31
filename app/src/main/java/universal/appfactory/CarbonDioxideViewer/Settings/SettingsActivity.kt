@@ -12,20 +12,8 @@ import android.view.View
 import android.widget.*
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
-import com.google.android.material.snackbar.Snackbar
 import com.jcraft.jsch.*
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import universal.appfactory.CarbonDioxideViewer.API.ApiInterface
-import universal.appfactory.CarbonDioxideViewer.API.ServiceBuilder
 import universal.appfactory.CarbonDioxideViewer.R
-import universal.appfactory.CarbonDioxideViewer.data.DataResponseModel
-import universal.appfactory.CarbonDioxideViewer.data.Statistics
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.util.*
@@ -38,8 +26,6 @@ class SettingsActivity : AppCompatActivity() {
     lateinit var ip: String
     lateinit var port: String
     lateinit var machineCount: String
-
-    var connectionFlag: Boolean = false
 
     lateinit var sharedPreferences: SharedPreferences
 
@@ -90,11 +76,12 @@ class SettingsActivity : AppCompatActivity() {
                 val jsch = JSch()
                 val session = jsch.getSession(username, ip, port.toInt())
                 session.setPassword(password)
-                session.timeout = 10000
+                session.timeout=20000
                 session.setConfig("StrictHostKeyChecking", "no")
                 session.connect()
 
                 val channel = session.openChannel("exec")
+                (channel as ChannelExec).setCommand("""echo "Connection set !"""")
                 channel.connect()
 
                 val output = BufferedReader(InputStreamReader(channel.inputStream)).readLine().toString()
@@ -109,14 +96,14 @@ class SettingsActivity : AppCompatActivity() {
             }
             catch (e: Exception){
                 e.printStackTrace()
-                return "Some error"
+                return "Timeout"
             }
 
         }
 
         @Deprecated("Deprecated in Java")
         override fun onPostExecute(result: String?) {
-            Log.i("CO2 data", "Data is fetched")
+            Log.i("CO2 data", result.toString())
 
             if(result == "Success"){
                 findViewById<TextView>(R.id.connection_status).text = "CONNECTED"

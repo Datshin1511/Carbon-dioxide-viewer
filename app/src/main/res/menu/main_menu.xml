@@ -7,27 +7,27 @@
         android:titleCondensed="help"
         android:title="@string/help"
         android:onClick="menu"
-        app:showAsAction="never"/>
+        app:showAsAction="ifRoom"/>
 
     <item
         android:id="@+id/main_menu_settings"
         android:titleCondensed="connect"
         android:title="@string/menu_settings"
         android:onClick="menu"
-        app:showAsAction="never"/>
+        app:showAsAction="ifRoom"/>
 
     <item
         android:id="@+id/lg_tasks"
         android:titleCondensed="tasks"
         android:title="@string/lg_tasks"
         android:onClick="menu"
-        app:showAsAction="never"/>
+        app:showAsAction="ifRoom"/>
 
     <item
         android:id="@+id/about_me"
         android:titleCondensed="credits"
         android:title="@string/about"
         android:onClick="menu"
-        app:showAsAction="never"/>
+        app:showAsAction="ifRoom"/>
 
 </menu>
