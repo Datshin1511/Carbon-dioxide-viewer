@@ -1,9 +1,11 @@
 package universal.appfactory.CarbonDioxideViewer.home
 
+
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
+import android.speech.RecognizerIntent
 import android.util.Log
 import android.util.TypedValue
 import android.view.Gravity
@@ -12,6 +14,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.setPadding
 import androidx.viewpager.widget.ViewPager
@@ -25,16 +28,10 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import androidx.appcompat.app.ActionBar
-import universal.appfactory.CarbonDioxideViewer.API.ApiInterface
-import universal.appfactory.CarbonDioxideViewer.API.ServiceBuilder
+import universal.appfactory.CarbonDioxideViewer.API.*
 import universal.appfactory.CarbonDioxideViewer.R
-import universal.appfactory.CarbonDioxideViewer.Settings.CreditsActivity
-import universal.appfactory.CarbonDioxideViewer.Settings.HelpActivity
-import universal.appfactory.CarbonDioxideViewer.Settings.SettingsActivity
-import universal.appfactory.CarbonDioxideViewer.Settings.TasksActivity
-import universal.appfactory.CarbonDioxideViewer.requestModels.EmissionFactors
-import universal.appfactory.CarbonDioxideViewer.requestModels.EmissionParameters
-import universal.appfactory.CarbonDioxideViewer.requestModels.EmissionRequestModel
+import universal.appfactory.CarbonDioxideViewer.Settings.*
+import universal.appfactory.CarbonDioxideViewer.requestModels.*
 import universal.appfactory.CarbonDioxideViewer.responseModels.*
 import universal.appfactory.CarbonDioxideViewer.adapters.PageAdapter
 
@@ -62,7 +59,7 @@ class HomepageActivity : AppCompatActivity() {
         tabLayout.setSelectedTabIndicatorColor(Color.GREEN)
         tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab) {
-                if(tabLayout.selectedTabPosition == 1){
+                if (tabLayout.selectedTabPosition == 1) {
                     startActivity(Intent(this@HomepageActivity, MapsActivity::class.java))
                     tabLayout.getTabAt(0)?.select()
                 }
@@ -74,11 +71,10 @@ class HomepageActivity : AppCompatActivity() {
         })
 
         tabLayout.setupWithViewPager(viewPager)
-
-
     }
 
-    fun getCarbonData(view: View){
+    // Carbon Data
+    fun getCarbonData(view: View) {
         findViewById<ProgressBar>(R.id.progressbar).visibility = View.GONE
         val response = ServiceBuilder.buildServiceURL1(ApiInterface::class.java)
 
@@ -93,10 +89,13 @@ class HomepageActivity : AppCompatActivity() {
                         val data = response.body()?.co2 as ArrayList<Statistics>
                         setDataLayout(data)
 
-                        for(i in 0 until data.size){
-                            Log.i("Data ${i+1}", "Date: ${data[i].day}-${data[i].month}-${data[i].year}\n" +
-                                    "Cycle: ${data[i].cycle}\n" +
-                                    "Trend: ${data[i].trend}")
+                        for (i in 0 until data.size) {
+                            Log.i(
+                                "Data ${i + 1}",
+                                "Date: ${data[i].day}-${data[i].month}-${data[i].year}\n" +
+                                        "Cycle: ${data[i].cycle}\n" +
+                                        "Trend: ${data[i].trend}"
+                            )
                         }
 
                         findViewById<ProgressBar>(R.id.progressbar).visibility = View.GONE
@@ -113,7 +112,7 @@ class HomepageActivity : AppCompatActivity() {
         findViewById<ProgressBar>(R.id.progressbar).visibility = View.VISIBLE
     }
 
-    fun estimateCarbon(view: View){
+    fun estimateCarbon(view: View) {
 
         val emissionRequestModel = EmissionRequestModel(EmissionFactors(), EmissionParameters())
         val jsonRequest = modelToJSON(emissionRequestModel)
@@ -128,21 +127,24 @@ class HomepageActivity : AppCompatActivity() {
                         response: Response<EstimateResponseModel>
                     ) {
 
-                        val co2Emission = "${response.body()?.co2e.toString()} ${response.body()?.co2e_unit.toString()}"
+                        val co2Emission =
+                            "${response.body()?.co2e.toString()} ${response.body()?.co2e_unit.toString()}"
                         val emissionFactor = response.body()?.emission_factor
                         val constituentModel = response.body()?.constituent_gases
 
-                        Log.i("Emission Characteristics", "Carbon dioxide (CO2): $co2Emission\n" +
-                                "Methane (CH4): ${constituentModel?.ch4} ${response.body()?.co2e_unit}\n" +
-                                "Nitrous oxide (N2O): ${constituentModel?.n2o} ${response.body()?.co2e_unit}\n" +
-                                "Calculation method: ${response.body()?.co2e_calculation_method}\n" +
-                                "Calculation origin: ${response.body()?.co2e_calculation_origin}\n" +
-                                "Name: ${emissionFactor?.name}\n" +
-                                "Activity ID: ${emissionFactor?.activity_id}\n" +
-                                "Source: ${emissionFactor?.source}\n" +
-                                "Year: ${emissionFactor?.year}\n" +
-                                "Region: ${emissionFactor?.region}\n" +
-                                "Category: ${emissionFactor?.category}")
+                        Log.i(
+                            "Emission Characteristics", "Carbon dioxide (CO2): $co2Emission\n" +
+                                    "Methane (CH4): ${constituentModel?.ch4} ${response.body()?.co2e_unit}\n" +
+                                    "Nitrous oxide (N2O): ${constituentModel?.n2o} ${response.body()?.co2e_unit}\n" +
+                                    "Calculation method: ${response.body()?.co2e_calculation_method}\n" +
+                                    "Calculation origin: ${response.body()?.co2e_calculation_origin}\n" +
+                                    "Name: ${emissionFactor?.name}\n" +
+                                    "Activity ID: ${emissionFactor?.activity_id}\n" +
+                                    "Source: ${emissionFactor?.source}\n" +
+                                    "Year: ${emissionFactor?.year}\n" +
+                                    "Region: ${emissionFactor?.region}\n" +
+                                    "Category: ${emissionFactor?.category}"
+                        )
 
                         findViewById<ProgressBar>(R.id.progressbar).visibility = View.GONE
                     }
@@ -159,13 +161,13 @@ class HomepageActivity : AppCompatActivity() {
     }
 
     @SuppressLint("SetTextI18n", "CutPasteId")
-    fun setDataLayout(carbonData: ArrayList<Statistics>){
+    fun setDataLayout(carbonData: ArrayList<Statistics>) {
 
         findViewById<LinearLayout>(R.id.homepageLL)?.removeAllViews()
         findViewById<TextView>(R.id.headerText).visibility = View.VISIBLE
 
         var count = 0
-        for(datum in carbonData) {
+        for (datum in carbonData) {
 
             count += 1
 
@@ -178,14 +180,14 @@ class HomepageActivity : AppCompatActivity() {
             hll.orientation = LinearLayout.VERTICAL
             hll.setPadding(spToPx(15))
 
-           val dateView = TextView(this)
-           dateView.layoutParams = LinearLayout.LayoutParams(
-               ViewGroup.LayoutParams.MATCH_PARENT,
-               ViewGroup.LayoutParams.WRAP_CONTENT
-           )
-           dateView.gravity = Gravity.START
-           dateView.text = "Date: ${datum.day}-${datum.month}-${datum.year}"
-           dateView.setTextColor(Color.WHITE)
+            val dateView = TextView(this)
+            dateView.layoutParams = LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+            dateView.gravity = Gravity.START
+            dateView.text = "Date: ${datum.day}-${datum.month}-${datum.year}"
+            dateView.setTextColor(Color.WHITE)
 
             val cycleView = TextView(this)
             cycleView.layoutParams = LinearLayout.LayoutParams(
@@ -205,23 +207,45 @@ class HomepageActivity : AppCompatActivity() {
             trendView.text = "Trend: ${datum.trend}"
             trendView.setTextColor(Color.WHITE)
 
-           hll.addView(dateView)
-           hll.addView(cycleView)
-           hll.addView(trendView)
+            hll.addView(dateView)
+            hll.addView(cycleView)
+            hll.addView(trendView)
 
-           findViewById<LinearLayout>(R.id.homepageLL)?.addView(hll)
+            findViewById<LinearLayout>(R.id.homepageLL)?.addView(hll)
 
-       }
+        }
 
         findViewById<TextView>(R.id.headerText).text = "CO2 Data: $count entries"
     }
 
+    // Speech Recognition
+    private val speechRecognitionLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == RESULT_OK) {
+                val data = result.data
+                val taskText = data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS) as ArrayList<String>
+                Log.i("Speech processed", taskText[0])
+            }
+        }
+    private fun speechRecognition(){
+        val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
+        intent.putExtra(
+            RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+            RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
+        )
+        intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Speak now")
+        speechRecognitionLauncher.launch(intent)
+
+    }
+
+
+    // Common
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
-       if(backpress + 2000 > System.currentTimeMillis())
-           this.finishAffinity()
-       else
-           Toast.makeText(this, "Press back again to exit", Toast.LENGTH_SHORT).show()
+        if (backpress + 2000 > System.currentTimeMillis())
+            this.finishAffinity()
+        else
+            Toast.makeText(this, "Press back again to exit", Toast.LENGTH_SHORT).show()
 
         backpress = System.currentTimeMillis()
         Log.i("System current Time in millis", backpress.toString())
@@ -232,9 +256,9 @@ class HomepageActivity : AppCompatActivity() {
         return super.onCreateOptionsMenu(menu)
     }
 
-    fun menu(item: MenuItem){
+    fun menu(item: MenuItem) {
 
-        navigableIntent = when(item.titleCondensed){
+        navigableIntent = when (item.titleCondensed) {
             "help" -> Intent(this@HomepageActivity, HelpActivity::class.java)
             "connect" -> Intent(this@HomepageActivity, SettingsActivity::class.java)
             "tasks" -> Intent(this@HomepageActivity, TasksActivity::class.java)
@@ -242,7 +266,10 @@ class HomepageActivity : AppCompatActivity() {
             else -> Intent(this@HomepageActivity, HomepageActivity::class.java)
         }
 
-        startActivity(navigableIntent)
+        if(item.titleCondensed == "Voice")
+            speechRecognition()
+        else
+            startActivity(navigableIntent)
     }
 
     fun modelToJSON(requestModel: Any): String {
@@ -251,7 +278,11 @@ class HomepageActivity : AppCompatActivity() {
     }
 
     private fun spToPx(sp: Int): Int {
-        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, sp.toFloat(), applicationContext.resources.displayMetrics)
+        return TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_SP,
+            sp.toFloat(),
+            applicationContext.resources.displayMetrics
+        )
             .toInt()
     }
 
